@@ -14,7 +14,7 @@ let firstCard = null, secondCard = null;
 // You will need to lock the board to stop users from choosing cards when they choose two wrong cards
 // (Don't have to worry about this too much)
 let lockBoard = false;
-
+let matchedPairs = 0;
 /* 
     You must initialize the game board. You have been given a shuffleArray() function.
     This function should also reset the entire game board by making sure there's no HTML inside of the game-board div.
@@ -22,7 +22,21 @@ let lockBoard = false;
 
 */
 function initGame() {
-    // Write your code here
+    shuffleArray(symbols);
+    const gameBoard = document.getElementById('game-board');
+    gameBoard.innerHTML = '';
+    cards = [];
+    matchedPairs = 0;
+
+    for (let i = 0; i < symbols.length; i++) {
+        createCard(symbols[i]);
+      }
+
+    shuffleArray(symbols);
+    for (let i = 0; i < symbols.length; i++) {
+        createCard(symbols[i]);
+      }
+
 
     document.getElementById('restart-btn').addEventListener('click', initGame);
 }
@@ -33,7 +47,19 @@ function initGame() {
     Also make sure to add the event listener with the 'flipCard' function
 */
 function createCard(symbol) {
-    // Write your code here
+
+    const gameCard = document.createElement('div');
+    gameCard.classList.add('card');
+    gameCard.dataset.symbol = symbol;
+    gameCard.addEventListener('click', function(){
+        flipCard(gameCard);
+    });
+
+    document.getElementById('game-board').appendChild(gameCard);
+
+    cards.push(gameCard);
+
+
 }
 
 /*
@@ -47,7 +73,18 @@ function createCard(symbol) {
 function flipCard(card) {
     // If the board is supposed to be locked or you picked the same card you already picked
     if (lockBoard || card === firstCard) return;
-    // Write your code here
+
+    card.classList.add('flipped');
+    card.innerHTML = card.dataset.symbol;
+
+    if (firstCard === null)
+        firstCard = card;
+
+    else if (secondCard === null){
+        secondCard = card;
+        checkForMatch();
+    }
+
 }
 
 /* 
@@ -56,7 +93,13 @@ function flipCard(card) {
     Otherwise, you should unflip the card and continue playing normally.
 */
 function checkForMatch() {
-    // Write your code here
+    if (firstCard.dataset.symbol === secondCard.dataset.symbol){
+        disableCards();
+        matchedPairs++;
+        checkForWin();
+    } else{
+        unflipCards();
+    }
 }
 
 /* 
@@ -65,7 +108,9 @@ function checkForMatch() {
     to reset the firstCard, secondCard, and lockBoard variables. (That's been written for you already)
 */
 function disableCards() {
-    // Write your code here
+    firstCard.classList.add('matched');
+    secondCard.classList.add('matched');
+    resetBoard();
 }
  
 /* ---------------------  Everything under has already been done for you -------------------------- */
@@ -95,6 +140,16 @@ function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
+function checkForWin(){
+    if (matchedPairs === symbols.length){
+
+        setTimeout(() => {
+            alert("Congrats you won!")
+
+        }, 500);
     }
 }
 
